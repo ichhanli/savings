@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Store Savings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 80%;
+      margin: 0 auto;
+    }
+
+    .middle-square {
+      flex: 1;
+      padding: 20px;
+      margin-top: 20px;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+    }
+
+    .total {
+      font-size: 40px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .input-group input[type="number"] {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 16px;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+    }
+
+    .button-group button {
+      padding: 12px 20px;
+      margin: 0 5px;
+      font-size: 16px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .button-group button:hover {
+      background-color: #45a049;
+    }
+
+    .button-group button:first-child {
+      background-color: #337ab7;
+    }
+
+    .button-group button:first-child:hover {
+      background-color: #286090;
+    }
+  </style>
+</head>
+<body>
+  <h1>Store Savings</h1>
+  <div class="container">
+    <div class="middle-square">
+      <h2 class="total" id="result">0</h2>
+      <div class="input-group">
+        <input type="number" id="amount" step="0.01" required placeholder="Enter amount">
+      </div>
+      <div class="button-group">
+        <button id="addButton">Add</button>
+        <button id="editButton" style="display: none;">Edit</button>
+        <button id="returnButton" style="display: none;">Return</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const resultElement = document.getElementById("result");
+  const amountInput = document.getElementById("amount");
+  const addButton = document.getElementById("addButton");
+  const editButton = document.getElementById("editButton");
+  const returnButton = document.getElementById("returnButton");
+
+  let totalAmount = 0;
+  let previousAmount = 0;
+
+  // Retrieve totalAmount from localStorage if available
+  if (localStorage.getItem("totalAmount")) {
+    totalAmount = parseFloat(localStorage.getItem("totalAmount"));
+    resultElement.innerText = totalAmount.toFixed(2);
+  }
+
+  addButton.addEventListener("click", () => {
+    const amount = parseFloat(amountInput.value);
+    if (!isNaN(amount)) {
+      previousAmount = amount;
+      totalAmount += amount;
+      resultElement.innerText = totalAmount.toFixed(2);
+      editButton.style.display = "inline-block";
+      returnButton.style.display = "inline-block";
+
+      // Store totalAmount in localStorage
+      localStorage.setItem("totalAmount", totalAmount.toString());
+    }
+    amountInput.value = "";
+  });
+
+  editButton.addEventListener("click", () => {
+    amountInput.value = previousAmount.toFixed(2);
+    addButton.innerText = "Update";
+    addButton.removeEventListener("click", addAmount);
+    addButton.addEventListener("click", updateAmount);
+  });
+
+  returnButton.addEventListener("click", () => {
+    totalAmount -= previousAmount;
+    resultElement.innerText = totalAmount.toFixed(2);
+    amountInput.value = "";
+    editButton.style.display = "none";
+    returnButton.style.display = "none";
+
+    // Store totalAmount in localStorage
+    localStorage.setItem("totalAmount", totalAmount.toString());
+  });
+
+  function addAmount() {
+    const amount = parseFloat(amountInput.value);
+    if (!isNaN(amount)) {
+      previousAmount = amount;
+      totalAmount += amount;
+      resultElement.innerText = totalAmount.toFixed(2);
+      editButton.style.display = "inline-block";
+      returnButton.style.display = "inline-block";
+      amountInput.value = "";
+
+      // Store totalAmount in localStorage
+      localStorage.setItem("totalAmount", totalAmount.toString());
+    }
+  }
+
+  function updateAmount() {
+    const amount = parseFloat(amountInput.value);
+    if (!isNaN(amount)) {
+      totalAmount -= previousAmount;
+      previousAmount = amount;
+      totalAmount += amount;
+      resultElement.innerText = totalAmount.toFixed(2);
+      amountInput.value = "";
+      addButton.innerText = "Add";
+      addButton.removeEventListener("click", updateAmount);
+      addButton.addEventListener("click", addAmount);
+
+      // Store totalAmount in localStorage
+      localStorage.setItem("totalAmount", totalAmount.toString());
+    }
+  }
+
+  amountInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      addAmount();
+    }
+  });
+  </script>
+</body>
+</html>
